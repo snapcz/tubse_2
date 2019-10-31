@@ -22,9 +22,10 @@ public class AttackThread extends Thread {
 
                         if (attackType <= this.status.getDifficulty().getChanceSmallAttack()) {
                             this.status.addEnemyAttack(0);
-                        } /*else {
+                        } else {
                             this.status.addEnemyAttack(1);
-                        }*/
+                            Thread.sleep(500);
+                        }
                     }
 
                     Thread.sleep(this.status.getDifficulty().getEnemyAttackTime());

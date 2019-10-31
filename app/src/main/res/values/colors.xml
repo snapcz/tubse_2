@@ -9,4 +9,5 @@
     <color name="dark_semi">#11363636</color>
     <color name="flame_bg">#eeeeee</color>
     <color name="button_bg">#60000000</color>
+    <color name="red">#fc3d03</color>
 </resources>

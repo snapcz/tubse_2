@@ -138,10 +138,12 @@ public class GameStatus {
          *
          * I'll tell you later why the calculation looks like this
          */
+        Log.d("movePlayer",posY+"");
         if(!((this.player.getPositionX()+posX)<0) &&
-                !((this.player.getPositionY()+Constant.PLAYER_SHIP_HEIGHT+posY)>this.ht) &&
                 !((this.player.getPositionX()+posX)>this.wd) &&
-                !((this.player.getPositionY()+posY)<0)) this.player.setPosition(this.player.getPositionX() + posX, this.player.getPositionY() - posY);
+                !((this.player.getPositionY()+posY)<0)){
+            this.player.setPosition(this.player.getPositionX() + posX, this.player.getPositionY() - posY);
+        }
     }
 
     public void addPlayerAttack(int id) {
@@ -159,7 +161,8 @@ public class GameStatus {
                     this.difficulty.getSmallAttackDamage(),this);
             this.attacks.add(atk);
         } else {
-            atk = Attack.createAttack(this.player, id, chargeAttackPositionX, player.getPositionY(), Constant.CHARGE_ATTACK_SPEED_X, -Constant.CHARGE_ATTACK_SPEED_Y, this.difficulty.getPlayerChargeAttackDamage(),this);
+            atk = Attack.createAttack(this.player, id,
+                    chargeAttackPositionX, player.getPositionY(), Constant.CHARGE_ATTACK_SPEED_X, -Constant.CHARGE_ATTACK_SPEED_Y, this.difficulty.getPlayerChargeAttackDamage(),this);
             this.attacks.add(atk);
         }
         atk.start();

@@ -7,11 +7,11 @@ public class Constant {
     public static final int PLAYER_SHIP_WIDTH = 71;
     public static final int PLAYER_SHIP_HEIGHT = 80;
 
-    public static final int SMALL_ATTACK_WIDTH = 52;
+    public static final int SMALL_ATTACK_WIDTH = 26;
     public static final int SMALL_ATTACK_HEIGHT = 50;
 
-    public static final int ENEMY_CHARGE_ATTACK_WIDTH = 123;
-    public static final int ENEMY_CHARGE_ATTACK_HEIGHT = 239;
+    public static final int ENEMY_CHARGE_ATTACK_WIDTH = 85;
+    public static final int ENEMY_CHARGE_ATTACK_HEIGHT = 142;
 
     public static final int PLAYER_CHARGE_ATTACK_WIDTH = 100;
     public static final int PLAYER_CHARGE_ATTACK_HEIGHT = 186;

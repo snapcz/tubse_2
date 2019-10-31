@@ -48,9 +48,9 @@ public class DrawerThread extends Thread {
 
         this.playerBitmap = BitmapFactory.decodeResource(res, R.drawable.player_ship);
         this.enemyBitmap = BitmapFactory.decodeResource(res, R.drawable.enemy_ship);
-        this.smallAttackBitmap = BitmapFactory.decodeResource(res, R.drawable.small_attack);
+        this.smallAttackBitmap = BitmapFactory.decodeResource(res, R.drawable.sma);
         this.playerChargeBitmap = BitmapFactory.decodeResource(res, R.drawable.player_charge_attack);
-        this.enemyChargaBitmap = BitmapFactory.decodeResource(res, R.drawable.enemy_charge_attack);
+        this.enemyChargaBitmap = BitmapFactory.decodeResource(res, R.drawable.fireball2);
 
         this.pauseImage = res.getDrawable(R.drawable.ic_pause_black_24dp);
     }
@@ -133,11 +133,14 @@ public class DrawerThread extends Thread {
                             gameCanvas.drawBitmap(this.enemyBitmap, enemy.getPositionX(), enemy.getPositionY(), null);
                             Paint p = new Paint();
                             p.setColor(res.getColor(R.color.colorPrimaryDark));
-                            gameCanvas.drawCircle(player.getPositionX(),player.getPositionY(),10,p);
+                            gameCanvas.drawCircle(player.getPositionX(),player.getPositionY()+player.getHeight(),10,p); // buat debug posX player
+                            //gameCanvas.drawCircle((enemy.getPositionX() + enemy.getWidth() / 2),(enemy.getPositionY() + enemy.getHeight() + Constant.SMALL_ATTACK_HEIGHT),10,p);
                             Iterator<Attack> it = status.getAttacks().iterator();
                             while (it.hasNext()) {
+                                p.setColor(res.getColor(R.color.red));
                                 Attack atk = it.next();
                                 if(!atk.isDone()){
+                                    gameCanvas.drawCircle(atk.getPositionX(),enemy.getPositionY() + enemy.getHeight() + Constant.ENEMY_CHARGE_ATTACK_HEIGHT,10,p); // buat debug width small attack
                                     if (atk.getIdBullet() == 0) { // smallAttack
                                         gameCanvas.drawBitmap(this.smallAttackBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                     } else { // charge
