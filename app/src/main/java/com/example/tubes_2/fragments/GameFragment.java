@@ -1,15 +1,20 @@
 package com.example.tubes_2.fragments;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +37,7 @@ import io.github.controlwear.virtual.joystick.android.JoystickView;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GameFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener, GameWrapper, JoystickView.OnMoveListener {
+public class GameFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener, GameWrapper, JoystickView.OnMoveListener, SensorEventListener {
     FloatingActionButton shootButton, pauseButton;
 
     DrawerThread drawer;
@@ -52,12 +57,15 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
     UIActivity activity;
 
+    SensorManager sensorManager;
+    Sensor accelerometer, magnetometer;
+
+    float[] magnetometerReading, accelerometerReading;
+
+    static final float VALUE_DRIFT = 0.05f;
+
     public GameFragment() {
         // Required empty public constructor
-    }
-
-    public void setActivity(UIActivity activity){
-        this.activity = activity;
     }
 
     @Override
@@ -80,14 +88,89 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         this.pauseButton = view.findViewById(R.id.pause);
 
         this.shootButton.setOnClickListener(this);
+
         if (this.difficulty.getChargeEnabled() == 1) {
             this.shootButton.setOnLongClickListener(this);
         }
+
         this.pauseButton.setOnClickListener(this);
 
         this.joystickView.setOnMoveListener(this);
 
+        this.sensorManager = (SensorManager)getActivity().getSystemService(Context.SENSOR_SERVICE);
+        this.accelerometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        this.magnetometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+        this.magnetometerReading = new float[3];
+        this.accelerometerReading = new float[3];
+
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (this.accelerometer != null) {
+            this.sensorManager.registerListener(this, this.accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        }
+
+        if (this.magnetometer != null) {
+            this.sensorManager.registerListener(this, this.magnetometer, SensorManager.SENSOR_DELAY_GAME);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        this.sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (this.gameStatus.getGameState() && this.gameStatus.getCountdown() == 0) {
+            int sensorType = sensorEvent.sensor.getType();
+
+            switch (sensorType) {
+                case Sensor.TYPE_ACCELEROMETER:
+                    this.accelerometerReading = sensorEvent.values.clone();
+                    break;
+                case Sensor.TYPE_MAGNETIC_FIELD:
+                    this.magnetometerReading = sensorEvent.values.clone();
+                    break;
+            }
+
+            this.getMatrix();
+        }
+    }
+
+    public void getMatrix() {
+        final float[] orientationAngles = new float[3];
+        final float[] rotationMatrix = new float[9];
+
+        this.sensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading);
+
+        this.sensorManager.getOrientation(rotationMatrix, orientationAngles);
+
+        float azimuth = orientationAngles[0];
+        float pitch = orientationAngles[1];
+        float roll = orientationAngles[2];
+
+        // azimuth = relatif terhadap kamera selfie (?)
+        // pitch = relatif kalo diputer ke depan
+        // roll = relatif kalo diputer nyamping (seperti barrel roll)
+
+        System.out.println("hmm");
+
+        if (Math.abs(pitch) < VALUE_DRIFT) {
+            pitch = 0;
+        }
+
+        if (Math.abs(roll) < VALUE_DRIFT) {
+            roll = 0;
+        }
+
+        this.gameStatus.movePlayer((int)Math.ceil(roll) * 2, (int)Math.ceil(pitch) * 2);
     }
 
     public void initializeGame() {
@@ -112,7 +195,7 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         }
 
         GameHandler handler = new GameHandler(this);
-        this.drawer = new DrawerThread(this.getContext(), handler, this.gameStatus, this.gameView);
+        this.drawer = new DrawerThread(this.getContext(), this, handler, this.gameStatus, this.gameView);
         this.attacker = new AttackThread(this.gameStatus);
 
         int time = 0;
@@ -123,12 +206,19 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
         this.timer = new TimerThread(time, this.gameStatus);
 
-        this.attacker.start();
         this.drawer.start();
-        this.timer.start();
     }
 
-    public static GameFragment newInstance(Difficulty difficulty,UIActivity activity) {
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        if (context instanceof UIActivity) {
+            this.activity = (UIActivity)context;
+        }
+    }
+
+    public static GameFragment newInstance(Difficulty difficulty, UIActivity activity) {
         GameFragment fragment = new GameFragment();
 
         Bundle args = new Bundle();
@@ -142,13 +232,10 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
     public void onClick(View view) {
         int id = view.getId();
 
-
-        if (id == this.shootButton.getId()) {
-            //this.gameStatus.addPlayerAttack();
-        }
         if (id == this.shootButton.getId() && this.gameStatus.getCountdown() == 0) {
             this.gameStatus.addPlayerAttack(0);
         } else if (id == this.pauseButton.getId() && this.gameStatus.getCountdown() == 0) {
+
             if (this.gameStatus.getGameState()) {
                 this.pauseButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
                 this.drawer.drawPause();
@@ -164,6 +251,7 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
     @Override
     public boolean onLongClick(View view) {
         int id = view.getId();
+
         if (id == this.shootButton.getId() && this.gameStatus.getCountdown() == 0 && this.gameStatus.getDifficulty().getChargeEnabled() == 1) {
             this.gameStatus.addPlayerAttack(1);
         }
@@ -203,5 +291,28 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
             this.gameStatus.movePlayer(moveX, moveY);
         }
+    }
+
+    @Override
+    public void startLogicThread() {
+        if (this.attacker != null) {
+            this.attacker.start();
+        }
+
+        if (this.timer != null) {
+            this.timer.start();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        this.drawer.clearScreen();
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 }

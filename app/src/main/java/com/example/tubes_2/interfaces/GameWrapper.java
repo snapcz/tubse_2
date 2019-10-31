@@ -4,4 +4,5 @@ public interface GameWrapper {
     void initializeGame();
     void startGame();
     void drawHPBar();
+    void startLogicThread();
 }
