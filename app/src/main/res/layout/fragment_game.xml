@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="7">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="6">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:id="@+id/gameView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_margin="@dimen/small_margin"
+            android:backgroundTint="@color/flame_bg"
+            app:borderWidth="0dp"
+            android:src="@drawable/ic_pause_black_24dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/shoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="@dimen/medium_margin"
+            android:backgroundTint="@color/flame_bg"
+            app:borderWidth="0dp"
+            android:src="@drawable/ic_iconmonstr_whats_hot_2" />
+
+        <io.github.controlwear.virtual.joystick.android.JoystickView
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/joystick"
+            android:layout_width="108dp"
+            android:layout_height="108dp"
+            android:layout_gravity="bottom|end"
+            custom:JV_buttonSizeRatio="25%"
+            android:layout_marginTop="64dp"
+            android:layout_margin="@dimen/small_margin"
+            custom:JV_backgroundColor="@color/dark_lightest"
+            custom:JV_buttonColor="@color/dark_lighter" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:background="@color/dark_lightest"
+        android:padding="@dimen/small_padding"
+        android:weightSum="3">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="@dimen/label_size"
+                android:text="@string/player_label"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="@dimen/label_size"
+                android:text="@string/enemy_label" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="2">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/small_margin"
+                android:id="@+id/playerView"
+                android:layout_weight="1" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/small_padding"
+                android:id="@+id/enemyView"
+                android:layout_weight="1" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
