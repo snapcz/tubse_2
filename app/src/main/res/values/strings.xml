@@ -2,4 +2,11 @@
     <string name="app_name">Tubes_2</string>
     <string name="player_label">Player</string>
     <string name="enemy_label">Enemy</string>
+    <string name="difficulty_label">Difficulty</string>
+    <string name="normal_label">Normal</string>
+    <string name="hard_label">Hard</string>
+    <string name="play_label">Play</string>
+    <string name="control_label">Control Mode</string>
+    <string name="joystick_label">Joystick</string>
+    <string name="sensor_label">Sensor</string>
 </resources>

@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
         this.fragmentList = new ArrayList<>();
         this.fragmentList.add(MenuFragment.newInstance(this));
         this.fragmentList.add(GameFragment.newInstance(Difficulty.createDifficulty(0),this));
-        this.fragmentList.add(HighScoreFragment.newInstance(this));
         this.changePage(MENU);
     }
 
@@ -93,5 +92,14 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
         else{
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void updateScore(int score) {
+        this.changePage(MENU);
+
+        MenuFragment fragment = (MenuFragment)this.fragmentList.get(0);
+
+        fragment.updateScore(score);
     }
 }

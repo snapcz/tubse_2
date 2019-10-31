@@ -11,10 +11,10 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.widget.Toast;
 
 import com.example.tubes_2.R;
 import com.example.tubes_2.fragments.GameView;
+import com.example.tubes_2.interfaces.GameWrapper;
 import com.example.tubes_2.model.Attack;
 import com.example.tubes_2.model.Constant;
 import com.example.tubes_2.model.Ship;
@@ -30,19 +30,23 @@ public class DrawerThread extends Thread {
     Resources res;
     SurfaceHolder gameHolder;
 
+    GameWrapper wrapper;
+
     Bitmap playerBitmap, enemyBitmap, smallAttackBitmap, playerChargeBitmap, enemyChargaBitmap;
 
     Drawable pauseImage;
 
     long previousTime, fps;
 
-    public DrawerThread(Context ctx, GameHandler handler, GameStatus gameStatus, GameView gameView) {
+    public DrawerThread(Context ctx, GameWrapper wrapper, GameHandler handler, GameStatus gameStatus, GameView gameView) {
         this.previousTime = 0;
         this.fps = 60; // PC MASTER RACE, MOBILE PEASANTS!!!
 
         this.status = gameStatus;
         this.gameHolder = gameView.getHolder();
         this.handler = handler;
+
+        this.wrapper = wrapper;
 
         this.res = ctx.getResources();
 
@@ -60,12 +64,70 @@ public class DrawerThread extends Thread {
         Ship player = status.getPlayer();
         Ship enemy = status.getEnemy();
 
+        Canvas gameCanvas;
+
+        this.handler.sendUpdateHPMessage();
+
+        while (status.getGameState() && status.getCountdown() > 0) {
+            gameCanvas = this.gameHolder.lockCanvas();
+
+            gameCanvas.drawColor(Color.WHITE);
+
+            synchronized (gameHolder) {
+                gameCanvas.drawBitmap(this.playerBitmap, player.getPositionX(), player.getPositionY(), null);
+                gameCanvas.drawBitmap(this.enemyBitmap, enemy.getPositionX(), enemy.getPositionY(), null);
+
+                Iterator<Attack> it = status.getAttacks().iterator();
+
+                while (it.hasNext()) {
+                    Attack atk = it.next();
+                    if (!atk.isDone()) {
+                        if (atk.getId() == 0) { // smallAttack
+                            gameCanvas.drawBitmap(this.smallAttackBitmap, atk.getPositionX(), atk.getPositionY(), null);
+                        } else { // charge
+                            if (atk.getSource() == player) {
+                                gameCanvas.drawBitmap(this.playerChargeBitmap, atk.getPositionX(), atk.getPositionY(), null);
+                            } else {
+                                gameCanvas.drawBitmap(this.enemyChargaBitmap, atk.getPositionX(), atk.getPositionY(), null);
+                            }
+                        }
+                    } else {
+                        it.remove();
+                    }
+                }
+            }
+
+            Paint pt = new Paint();
+            pt.setColor(Color.BLACK);
+            pt.setTextSize(256);
+
+            int xPos = (gameCanvas.getWidth() / 2) - 64;
+            int yPos = (int)((gameCanvas.getHeight() / 2) - ((pt.descent() + pt.ascent()) / 2));
+
+            gameCanvas.drawText(Integer.toString(status.getCountdown()), xPos, yPos, pt);
+
+            // just decrement here
+            status.reduceCountdown();
+
+            gameHolder.unlockCanvasAndPost(gameCanvas);
+
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            continue;
+        }
+
+        this.wrapper.startLogicThread();
+
         while (status.getGameState()) {
             long currentTimeMillis = System.currentTimeMillis();
             long elapsedTimeMs = currentTimeMillis - previousTime;
             long sleepTimeMs = (long) (1000f/ fps - elapsedTimeMs);
 
-            Canvas gameCanvas = this.gameHolder.lockCanvas();
+            gameCanvas = this.gameHolder.lockCanvas();
 
             try {
                 if (gameCanvas == null) {
@@ -79,15 +141,20 @@ public class DrawerThread extends Thread {
                         Thread.sleep(sleepTimeMs);
                     }
 
+                    this.handler.sendUpdateHPMessage();
+
+                    status.updateGame();
+
                     synchronized (gameHolder) {
                         gameCanvas.drawBitmap(this.playerBitmap, player.getPositionX(), player.getPositionY(), null);
                         gameCanvas.drawBitmap(this.enemyBitmap, enemy.getPositionX(), enemy.getPositionY(), null);
 
                         Iterator<Attack> it = status.getAttacks().iterator();
+
                         while (it.hasNext()) {
                             Attack atk = it.next();
-                            if(!atk.isDone()){
-                                if (atk.getIdBullet() == 0) { // smallAttack
+                            if (!atk.isDone()) {
+                                if (atk.getId() == 0) { // smallAttack
                                     gameCanvas.drawBitmap(this.smallAttackBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                 } else { // charge
                                     if (atk.getSource() == player) {
@@ -96,8 +163,7 @@ public class DrawerThread extends Thread {
                                         gameCanvas.drawBitmap(this.enemyChargaBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                     }
                                 }
-                            }
-                            else{
+                            } else {
                                 it.remove();
                             }
                         }
@@ -160,6 +226,7 @@ public class DrawerThread extends Thread {
                     }
 
                     status.updateGame();
+                    this.gameHolder.unlockCanvasAndPost(gameCanvas);
                 }
             } catch (Exception e) {
                 this.gameHolder.unlockCanvasAndPost(gameCanvas);
@@ -175,6 +242,14 @@ public class DrawerThread extends Thread {
         synchronized (this) {
             this.pauseImage.draw(gameCanvas);
         }
+
+        this.gameHolder.unlockCanvasAndPost(gameCanvas);
+    }
+
+    public void clearScreen() {
+        Canvas gameCanvas = this.gameHolder.lockCanvas();
+
+        gameCanvas.drawColor(Color.WHITE);
 
         this.gameHolder.unlockCanvasAndPost(gameCanvas);
     }
