@@ -5,4 +5,5 @@ public interface GameWrapper {
     void startGame();
     void drawHPBar();
     void startLogicThread();
+    void calculateScore();
 }

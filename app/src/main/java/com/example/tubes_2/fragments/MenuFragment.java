@@ -1,28 +1,42 @@
 package com.example.tubes_2.fragments;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
+        import android.content.Context;
+        import android.os.Bundle;
+        import android.view.LayoutInflater;
+        import android.view.View;
+        import android.view.ViewGroup;
+        import android.widget.Button;
+        import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
+        import androidx.fragment.app.Fragment;
+        import androidx.fragment.app.FragmentManager;
 
-import com.example.tubes_2.R;
-import com.example.tubes_2.interfaces.UIActivity;
-import com.example.tubes_2.model.Difficulty;
+        import com.android.volley.Request;
+        import com.android.volley.RequestQueue;
+        import com.android.volley.Response;
+        import com.android.volley.VolleyError;
+        import com.android.volley.toolbox.JsonObjectRequest;
+        import com.android.volley.toolbox.Volley;
+        import com.example.tubes_2.R;
+        import com.example.tubes_2.interfaces.UIActivity;
+        import com.example.tubes_2.model.RequestObject;
+        import com.example.tubes_2.model.Score;
+        import com.google.gson.Gson;
 
-public class MenuFragment extends Fragment implements View.OnClickListener{
+        import org.json.JSONArray;
+        import org.json.JSONException;
+        import org.json.JSONObject;
+
+        import java.util.ArrayList;
+        import java.util.List;
+
+public class MenuFragment extends Fragment implements View.OnClickListener {
     Button startGame,highScore;
     final int START_GAME = 1;
     final int HIGH_SCORE = 2;
     UIActivity activity;
+
+    private static final String BASE_URL = "http://p3b.labftis.net/api.php";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,6 +47,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener{
         this.highScore = view.findViewById(R.id.high_score);
         this.startGame.setOnClickListener(this);
         this.highScore.setOnClickListener(this);
+
         return view;
     }
 
@@ -52,8 +67,143 @@ public class MenuFragment extends Fragment implements View.OnClickListener{
     public void onClick(View view) {
         if(view.getId()==this.startGame.getId()){
             this.activity.changePage(START_GAME);
-        } else{
-            this.activity.changePage(HIGH_SCORE);
+        } else if (view.getId() == this.highScore.getId()){
+            this.showHighScoreFragment();
         }
+    }
+
+    public void updateScore(final int score) {
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        final Gson gson = new Gson();
+
+        String url = BASE_URL + "?api_key=2017730017";
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        int idx = -1;
+                        try {
+                            JSONArray arr = response.getJSONArray("data");
+
+                            if (arr.length() > 0) {
+                                for (int i = 0; i < 20; i++) {
+                                    JSONObject jsonObject = arr.getJSONObject(i);
+                                    String str = jsonObject.toString();
+
+                                    Score scorex = gson.fromJson(str, Score.class);
+
+                                    if (score > scorex.getScore()) {
+                                        idx = scorex.getOrder();
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (idx != -1) {
+                                sendUpdateScoreRequest(idx, score);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // DO NOTHING
+                    }
+                }
+        );
+
+        queue.add(jsonObjectRequest);
+    }
+
+    public void sendUpdateScoreRequest(final int idx, final int score) throws JSONException {
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        Gson gson = new Gson();
+
+        RequestObject req = new RequestObject("2017730017", idx, score);
+
+        String jsonString = gson.toJson(req);
+
+        JSONObject obj = new JSONObject(jsonString);
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                BASE_URL,
+                obj,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Context context = getContext();
+                        String text = "Successfully update high score at index " + idx + " with score " + score;
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // DO NOTHING
+                    }
+                }
+        );
+
+        queue.add(request);
+    }
+
+    public void showHighScoreFragment() {
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        final Gson gson = new Gson();
+
+        String url = BASE_URL + "?api_key=2017730017";
+
+        final List<Score> scoreList = new ArrayList<>();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray arr = response.getJSONArray("data");
+
+                            if (arr.length() > 0) {
+                                for (int i = 0; i < 20; i++) {
+                                    JSONObject jsonObject = arr.getJSONObject(i);
+                                    String str = jsonObject.toString();
+
+                                    Score scorex = gson.fromJson(str, Score.class);
+
+                                    scoreList.add(scorex);
+                                }
+                            }
+
+                            FragmentManager fm = getFragmentManager();
+                            HighScoreFragment fragment = new HighScoreFragment(scoreList);
+
+                            fragment.show(fm, "");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // DO NOTHING
+                    }
+                }
+        );
+
+        queue.add(jsonObjectRequest);
     }
 }

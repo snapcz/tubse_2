@@ -152,15 +152,12 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
         this.sensorManager.getOrientation(rotationMatrix, orientationAngles);
 
-        float azimuth = orientationAngles[0];
         float pitch = orientationAngles[1];
         float roll = orientationAngles[2];
 
         // azimuth = relatif terhadap kamera selfie (?)
         // pitch = relatif kalo diputer ke depan
         // roll = relatif kalo diputer nyamping (seperti barrel roll)
-
-        System.out.println("hmm");
 
         if (Math.abs(pitch) < VALUE_DRIFT) {
             pitch = 0;
@@ -314,5 +311,19 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
+    }
+
+    @Override
+    public void calculateScore() {
+        int lifeScore = this.gameStatus.getPlayer().getCurrentHealth() * 5000;
+        int time = this.timer.getTime();
+
+        lifeScore -= time;
+
+        if (this.difficulty.getChargeEnabled() == 0) { // hard
+            lifeScore >>= 1;
+        }
+
+        this.activity.updateScore(lifeScore);
     }
 }

@@ -66,6 +66,8 @@ public class DrawerThread extends Thread {
 
         Canvas gameCanvas;
 
+        this.handler.sendUpdateHPMessage();
+
         while (status.getGameState() && status.getCountdown() > 0) {
             gameCanvas = this.gameHolder.lockCanvas();
 
