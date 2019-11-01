@@ -126,8 +126,6 @@ public class DrawerThread extends Thread {
 
             continue;
         }
-
-        Log.d("run ","test");
         this.wrapper.startLogicThread();
 
         while (status.getGameState()) {
