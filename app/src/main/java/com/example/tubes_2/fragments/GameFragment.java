@@ -128,7 +128,7 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        if (this.gameStatus.getGameState() && this.gameStatus.getCountdown() == 0) {
+        if (this.gameStatus != null && this.gameStatus.getGameState() && this.gameStatus.getCountdown() == 0) {
             int sensorType = sensorEvent.sensor.getType();
 
             switch (sensorType) {
@@ -325,5 +325,10 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         }
 
         this.activity.updateScore(lifeScore);
+    }
+
+    @Override
+    public void gameOver() {
+        // u loser, show a toast to humiliate him
     }
 }

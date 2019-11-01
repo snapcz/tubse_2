@@ -114,10 +114,9 @@ public class GameStatus {
         // update enemy position
         Random rd = new Random();
         int move = rd.nextInt(this.getDifficulty().getEnemyMoveLimit() * 2) - this.getDifficulty().getEnemyMoveLimit();
-        System.out.println(move);
         if((this.enemy.getPositionX()+move)>0) this.enemy.setPosition(this.enemy.getPositionX() + move, this.enemy.getPositionY());
 
-        if(this.enemy.getCurrentHealth()<=0||this.player.getCurrentHealth()<=0) this.gameState=false;
+        if(this.enemy.getCurrentHealth()<=0 || this.player.getCurrentHealth()<=0) this.gameState=false;
         // check collision here, update status accordingly
     }
 

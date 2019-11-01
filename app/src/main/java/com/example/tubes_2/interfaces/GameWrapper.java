@@ -6,4 +6,5 @@ public interface GameWrapper {
     void drawHPBar();
     void startLogicThread();
     void calculateScore();
+    void gameOver();
 }

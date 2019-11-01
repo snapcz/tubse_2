@@ -28,6 +28,7 @@ package com.example.tubes_2.fragments;
         import org.json.JSONObject;
 
         import java.util.ArrayList;
+        import java.util.Collections;
         import java.util.List;
 
 public class MenuFragment extends Fragment implements View.OnClickListener {
@@ -85,9 +86,9 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        int idx = -1;
                         try {
                             JSONArray arr = response.getJSONArray("data");
+                            List<Score> scoreList = new ArrayList<>();
 
                             if (arr.length() > 0) {
                                 for (int i = 0; i < 20; i++) {
@@ -96,15 +97,16 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
 
                                     Score scorex = gson.fromJson(str, Score.class);
 
-                                    if (score > scorex.getScore()) {
-                                        idx = scorex.getOrder();
-                                        break;
-                                    }
+                                    scoreList.add(scorex);
                                 }
+
+                                Collections.sort(scoreList);
                             }
 
-                            if (idx != -1) {
-                                sendUpdateScoreRequest(idx, score);
+                            for (int i = 0; i < 20; i++) {
+                                if (scoreList.get(i).getScore() < score) {
+                                    sendUpdateScoreRequest(i + 1, score, scoreList);
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -122,7 +124,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
         queue.add(jsonObjectRequest);
     }
 
-    public void sendUpdateScoreRequest(final int idx, final int score) throws JSONException {
+    public void sendUpdateScoreRequest(final int idx, final int score, List<Score> prevScores) throws JSONException {
         RequestQueue queue = Volley.newRequestQueue(this.getContext());
         Gson gson = new Gson();
 
@@ -156,6 +158,34 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
         );
 
         queue.add(request);
+
+        for (int i = idx; i < 20; i++) {
+            RequestObject requestObject = new RequestObject("2017730017", prevScores.get(i).getOrder() + 1, prevScores.get(i).getScore());
+
+            String jsonStrong = gson.toJson(requestObject);
+
+            JSONObject jsonObject = new JSONObject(jsonStrong);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.POST,
+                    BASE_URL,
+                    jsonObject,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // DO NOTHING
+                        }
+                    }
+            );
+
+            queue.add(jsonObjectRequest);
+        }
     }
 
     public void showHighScoreFragment() {
@@ -186,6 +216,8 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                                     scoreList.add(scorex);
                                 }
                             }
+
+                            Collections.sort(scoreList);
 
                             FragmentManager fm = getFragmentManager();
                             HighScoreFragment fragment = new HighScoreFragment(scoreList);
