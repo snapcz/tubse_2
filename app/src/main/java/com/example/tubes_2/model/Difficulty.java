@@ -135,6 +135,6 @@ public class Difficulty implements Parcelable {
             enemyLife = 175;
         }
 
-        return new Difficulty(charge, playerLife, enemyLife, 0.5, 500, 10, 30, 25, 5);
+        return new Difficulty(charge, playerLife, enemyLife, 0.8, 2000, 10, 30, 25, 5);
     }
 }

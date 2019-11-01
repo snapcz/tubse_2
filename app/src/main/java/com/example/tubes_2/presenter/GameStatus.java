@@ -2,7 +2,6 @@ package com.example.tubes_2.presenter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import com.example.tubes_2.R;
 import com.example.tubes_2.model.Attack;
@@ -10,12 +9,9 @@ import com.example.tubes_2.model.Constant;
 import com.example.tubes_2.model.Difficulty;
 import com.example.tubes_2.model.Ship;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameStatus {
     Context ctx;
@@ -78,7 +74,12 @@ public class GameStatus {
         attacks.clear();
         for (int i = 0; i < newAttack.size(); i++) {
             attacks.add(newAttack.get(i));
-            newAttack.get(i).start();
+        }
+    }
+
+    public void startAttacks(){
+        for (int i = 0; i < attacks.size(); i++) {
+            if(!attacks.get(i).isAlive())attacks.get(i).start();
         }
     }
 
@@ -139,9 +140,10 @@ public class GameStatus {
          * I'll tell you later why the calculation looks like this
          */
         if(!((this.player.getPositionX()+posX)<0) &&
-                !((this.player.getPositionY()+Constant.PLAYER_SHIP_HEIGHT+posY)>this.ht) &&
                 !((this.player.getPositionX()+posX)>this.wd) &&
-                !((this.player.getPositionY()+posY)<0)) this.player.setPosition(this.player.getPositionX() + posX, this.player.getPositionY() - posY);
+                !((this.player.getPositionY()+posY)<0)){
+            this.player.setPosition(this.player.getPositionX() + posX, this.player.getPositionY() - posY);
+        }
     }
 
     public void addPlayerAttack(int id) {
@@ -159,7 +161,8 @@ public class GameStatus {
                     this.difficulty.getSmallAttackDamage(),this);
             this.attacks.add(atk);
         } else {
-            atk = Attack.createAttack(this.player, id, chargeAttackPositionX, player.getPositionY(), Constant.CHARGE_ATTACK_SPEED_X, -Constant.CHARGE_ATTACK_SPEED_Y, this.difficulty.getPlayerChargeAttackDamage(),this);
+            atk = Attack.createAttack(this.player, id,
+                    chargeAttackPositionX, player.getPositionY(), Constant.CHARGE_ATTACK_SPEED_X, -Constant.CHARGE_ATTACK_SPEED_Y, this.difficulty.getPlayerChargeAttackDamage(),this);
             this.attacks.add(atk);
         }
         atk.start();
