@@ -78,7 +78,12 @@ public class GameStatus {
         attacks.clear();
         for (int i = 0; i < newAttack.size(); i++) {
             attacks.add(newAttack.get(i));
-            newAttack.get(i).start();
+        }
+    }
+
+    public void startAttacks(){
+        for (int i = 0; i < attacks.size(); i++) {
+            attacks.get(i).start();
         }
     }
 
@@ -139,7 +144,6 @@ public class GameStatus {
          *
          * I'll tell you later why the calculation looks like this
          */
-        Log.d("movePlayer",posY+"");
         if(!((this.player.getPositionX()+posX)<0) &&
                 !((this.player.getPositionX()+posX)>this.wd) &&
                 !((this.player.getPositionY()+posY)<0)){

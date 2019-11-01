@@ -84,19 +84,21 @@ public class Attack extends Thread {
                         }
                         this.move();
                         //YO DEBUG YO
-                        if(this.source.getId()==0){
+                        if(!this.done && this.source.getId()==0){
                             Ship collision = this.status.getEnemy();
-                            if(this.getIdBullet()==0){
-                                if((this.positionY+ Constant.SMALL_ATTACK_HEIGHT)<(collision.getPositionY()+Constant.ENEMY_SHIP_HEIGHT*2) &&
+                            if(this.getIdBullet()==0){ //bug disini
+                                if(this.positionY < (collision.getPositionY()+collision.getWidth()*2) &&
                                         this.positionX>=collision.getPositionX() &&
+                                        (this.positionY+Constant.SMALL_ATTACK_HEIGHT) < collision.getPositionY() &&
                                         (this.positionX+Constant.SMALL_ATTACK_WIDTH)<=(collision.getPositionX()+collision.getWidth())){
                                     collision.damageShip(this.damage);
                                     done=true;
                                     break;
                                 }
                             } else {
-                                if((this.positionY+ Constant.PLAYER_CHARGE_ATTACK_HEIGHT)<(collision.getPositionY()+Constant.ENEMY_SHIP_HEIGHT*2) &&
+                                if(this.positionY<(collision.getPositionY()+collision.getWidth()*2) &&
                                         this.positionX>=collision.getPositionX() &&
+                                        (this.positionY+Constant.PLAYER_CHARGE_ATTACK_HEIGHT) < collision.getPositionY() &&
                                         (this.positionX+Constant.PLAYER_CHARGE_ATTACK_WIDTH)<=(collision.getPositionX()+collision.getWidth())){
                                     collision.damageShip(this.damage);
                                     done=true;
@@ -104,23 +106,33 @@ public class Attack extends Thread {
                                 }
                             }
                         }
-                        else{
+                        else if(!this.done){
                             Ship collision = this.status.getPlayer();
-                            if(this.getIdBullet()==0){
+                            if(this.getIdBullet()==0){ //Cek lagi
                                 if((this.positionY+ Constant.SMALL_ATTACK_HEIGHT)>collision.getPositionY() &&
                                         this.positionX>=collision.getPositionX() &&
-                                        (this.positionX+Constant.SMALL_ATTACK_WIDTH)<=(collision.getPositionX()+collision.getWidth())){
+                                        this.positionX<=(collision.getPositionX()+collision.getWidth()) &&
+                                        this.positionY <= (collision.getPositionY()+collision.getHeight())){
                                     collision.damageShip(this.damage);
                                     done=true;
                                     break;
                                 }
                             } else {
                                 if((this.positionY+ Constant.ENEMY_CHARGE_ATTACK_HEIGHT)>collision.getPositionY() &&
-                                        this.positionX>=collision.getPositionX() &&
-                                        (this.positionX+Constant.ENEMY_CHARGE_ATTACK_WIDTH)<=(collision.getPositionX()+collision.getWidth())){
-                                    collision.damageShip(this.damage);
-                                    done=true;
-                                    break;
+                                        this.positionY <= (collision.getPositionY()+collision.getHeight())){
+                                    if(this.positionX<collision.getPositionX()){
+                                        if(this.positionX+Constant.ENEMY_CHARGE_ATTACK_WIDTH>collision.getPositionX()){
+                                            collision.damageShip(this.damage);
+                                            done=true;
+                                            break;
+                                        }
+                                    } else {
+                                        if(this.positionX<=collision.getPositionX()+collision.getWidth()){
+                                            collision.damageShip(this.damage);
+                                            done=true;
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }

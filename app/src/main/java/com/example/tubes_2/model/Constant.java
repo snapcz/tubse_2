@@ -11,7 +11,7 @@ public class Constant {
     public static final int SMALL_ATTACK_HEIGHT = 50;
 
     public static final int ENEMY_CHARGE_ATTACK_WIDTH = 85;
-    public static final int ENEMY_CHARGE_ATTACK_HEIGHT = 142;
+    public static final int ENEMY_CHARGE_ATTACK_HEIGHT = 350;
 
     public static final int PLAYER_CHARGE_ATTACK_WIDTH = 100;
     public static final int PLAYER_CHARGE_ATTACK_HEIGHT = 186;

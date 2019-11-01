@@ -71,8 +71,15 @@ public class DrawerThread extends Thread {
         while (status.getGameState() && status.getCountdown() > 0) {
             gameCanvas = this.gameHolder.lockCanvas();
 
-            gameCanvas.drawColor(Color.WHITE);
+            try{
+                if(gameCanvas==null){
+                    Thread.sleep(1);
+                    continue;
+                }
+            } catch(Exception e){
 
+            }
+            gameCanvas.drawColor(Color.WHITE);
             synchronized (gameHolder) {
                 gameCanvas.drawBitmap(this.playerBitmap, player.getPositionX(), player.getPositionY(), null);
                 gameCanvas.drawBitmap(this.enemyBitmap, enemy.getPositionX(), enemy.getPositionY(), null);
@@ -82,7 +89,7 @@ public class DrawerThread extends Thread {
                 while (it.hasNext()) {
                     Attack atk = it.next();
                     if (!atk.isDone()) {
-                        if (atk.getId() == 0) { // smallAttack
+                        if (atk.getIdBullet() == 0) { // smallAttack
                             gameCanvas.drawBitmap(this.smallAttackBitmap, atk.getPositionX(), atk.getPositionY(), null);
                         } else { // charge
                             if (atk.getSource() == player) {
@@ -120,6 +127,7 @@ public class DrawerThread extends Thread {
             continue;
         }
 
+        Log.d("run ","test");
         this.wrapper.startLogicThread();
 
         while (status.getGameState()) {
@@ -132,7 +140,6 @@ public class DrawerThread extends Thread {
             try {
                 if (gameCanvas == null) {
                     Thread.sleep(1);
-
                     continue;
                 } else {
                     gameCanvas.drawColor(Color.WHITE);
@@ -142,91 +149,35 @@ public class DrawerThread extends Thread {
                     }
 
                     this.handler.sendUpdateHPMessage();
-
                     status.updateGame();
-
                     synchronized (gameHolder) {
                         gameCanvas.drawBitmap(this.playerBitmap, player.getPositionX(), player.getPositionY(), null);
                         gameCanvas.drawBitmap(this.enemyBitmap, enemy.getPositionX(), enemy.getPositionY(), null);
-
+                            //gameCanvas.drawCircle((enemy.getPositionX() + enemy.getWidth() / 2),(enemy.getPositionY() + enemy.getHeight() + Constant.SMALL_ATTACK_HEIGHT),10,p);
                         Iterator<Attack> it = status.getAttacks().iterator();
-
                         while (it.hasNext()) {
                             Attack atk = it.next();
-                            if (!atk.isDone()) {
-                                if (atk.getId() == 0) { // smallAttack
+                            if(!atk.isDone()){
+                                if (atk.getIdBullet() == 0) { // smallAttack
                                     gameCanvas.drawBitmap(this.smallAttackBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                 } else { // charge
+                                    Paint p = new Paint();
+                                    p.setColor(res.getColor(R.color.red));
+                                    gameCanvas.drawCircle(atk.getPositionX(),atk.getPositionY()+ Constant.ENEMY_CHARGE_ATTACK_HEIGHT,10,p);
                                     if (atk.getSource() == player) {
-                                        gameCanvas.drawBitmap(this.playerChargeBitmap, atk.getPositionX(), atk.getPositionY(), null);
+                                       gameCanvas.drawBitmap(this.playerChargeBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                     } else {
-                                        gameCanvas.drawBitmap(this.enemyChargaBitmap, atk.getPositionX(), atk.getPositionY(), null);
+                                       gameCanvas.drawBitmap(this.enemyChargaBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                     }
                                 }
-                            } else {
-                                it.remove();
                             }
-                        }
-                    }
-
-                    this.handler.sendUpdateHPMessage();
-
-                    if (status.getCountdown() > 0) {
-                        Paint pt = new Paint();
-                        pt.setColor(Color.BLACK);
-                        pt.setTextSize(256);
-
-                        int xPos = (gameCanvas.getWidth() / 2) - 64;
-                        int yPos = (int)((gameCanvas.getHeight() / 2) - ((pt.descent() + pt.ascent()) / 2));
-
-                        gameCanvas.drawText(Integer.toString(status.getCountdown()), xPos, yPos, pt);
-
-                        // just decrement here
-                        status.reduceCountdown();
-
-                        gameHolder.unlockCanvasAndPost(gameCanvas);
-
-                        Thread.sleep(1000);
-
-                        continue;
-                    } else {
-                        status.updateGame();
-
-                        this.handler.sendUpdateHPMessage();
-
-                        synchronized (gameHolder) {
-                            gameCanvas.drawBitmap(this.playerBitmap, player.getPositionX(), player.getPositionY(), null);
-                            gameCanvas.drawBitmap(this.enemyBitmap, enemy.getPositionX(), enemy.getPositionY(), null);
-                            Paint p = new Paint();
-                            p.setColor(res.getColor(R.color.colorPrimaryDark));
-                            gameCanvas.drawCircle(player.getPositionX(),player.getPositionY()+player.getHeight(),10,p); // buat debug posX player
-                            //gameCanvas.drawCircle((enemy.getPositionX() + enemy.getWidth() / 2),(enemy.getPositionY() + enemy.getHeight() + Constant.SMALL_ATTACK_HEIGHT),10,p);
-                            Iterator<Attack> it = status.getAttacks().iterator();
-                            while (it.hasNext()) {
-                                p.setColor(res.getColor(R.color.red));
-                                Attack atk = it.next();
-                                if(!atk.isDone()){
-                                    gameCanvas.drawCircle(atk.getPositionX(),enemy.getPositionY() + enemy.getHeight() + Constant.ENEMY_CHARGE_ATTACK_HEIGHT,10,p); // buat debug width small attack
-                                    if (atk.getIdBullet() == 0) { // smallAttack
-                                        gameCanvas.drawBitmap(this.smallAttackBitmap, atk.getPositionX(), atk.getPositionY(), null);
-                                    } else { // charge
-                                        if (atk.getSource() == player) {
-                                            gameCanvas.drawBitmap(this.playerChargeBitmap, atk.getPositionX(), atk.getPositionY(), null);
-                                        } else {
-                                            gameCanvas.drawBitmap(this.enemyChargaBitmap, atk.getPositionX(), atk.getPositionY(), null);
-                                        }
-                                    }
-                                }
-                                else{
-                                    it.remove();
-                                }
+                            else{
+                               it.remove();
                             }
                         }
                         this.gameHolder.unlockCanvasAndPost(gameCanvas);
                     }
-
                     status.updateGame();
-                    this.gameHolder.unlockCanvasAndPost(gameCanvas);
                 }
             } catch (Exception e) {
                 this.gameHolder.unlockCanvasAndPost(gameCanvas);

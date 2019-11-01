@@ -128,7 +128,7 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        if (this.gameStatus.getGameState() && this.gameStatus.getCountdown() == 0) {
+        if (this.gameStatus!=null && this.gameStatus.getGameState() && this.gameStatus.getCountdown() == 0) {
             int sensorType = sensorEvent.sensor.getType();
 
             switch (sensorType) {
@@ -232,7 +232,6 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         if (id == this.shootButton.getId() && this.gameStatus.getCountdown() == 0) {
             this.gameStatus.addPlayerAttack(0);
         } else if (id == this.pauseButton.getId() && this.gameStatus.getCountdown() == 0) {
-
             if (this.gameStatus.getGameState()) {
                 this.pauseButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
                 this.drawer.drawPause();
@@ -299,6 +298,8 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         if (this.timer != null) {
             this.timer.start();
         }
+
+        this.gameStatus.startAttacks();
     }
 
     @Override

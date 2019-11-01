@@ -21,14 +21,13 @@ public class AttackThread extends Thread {
                         double attackType = rd.nextDouble();
 
                         if (attackType <= this.status.getDifficulty().getChanceSmallAttack()) {
+                            Thread.sleep(this.status.getDifficulty().getEnemyAttackTime());
                             this.status.addEnemyAttack(0);
-                        } else {
+                        }else {
+                            Thread.sleep(this.status.getDifficulty().getEnemyAttackTime());
                             this.status.addEnemyAttack(1);
-                            Thread.sleep(500);
                         }
                     }
-
-                    Thread.sleep(this.status.getDifficulty().getEnemyAttackTime());
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
