@@ -179,7 +179,7 @@ public class DrawerThread extends Thread {
                 this.previousTime = currentTimeMillis;
             }
         }
-
+        this.wrapper.calculateScore();
     }
 
     public void drawPause() {

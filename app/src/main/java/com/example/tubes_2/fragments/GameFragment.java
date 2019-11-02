@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.example.tubes_2.R;
 import com.example.tubes_2.fragments.thread.DrawerThread;
@@ -338,10 +339,18 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         }
 
         this.activity.updateScore(lifeScore);
+        this.gameOver();
     }
 
     @Override
     public void gameOver() {
         // u loser, show a toast to humiliate him
+        Toast status;
+        if(this.gameStatus.getPlayer().getCurrentHealth()<=0){
+            status = Toast.makeText(getContext(),"You are a loser indeed, since born",Toast.LENGTH_LONG);
+        } else {
+            status = Toast.makeText(getContext(),"Lucky bastard...",Toast.LENGTH_SHORT);
+        }
+        status.show();
     }
 }
