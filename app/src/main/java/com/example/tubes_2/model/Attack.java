@@ -88,18 +88,19 @@ public class Attack extends Thread {
                             Ship collision = this.status.getEnemy();
 
                             if(this.getIdBullet()==0){ //bug disini
-                                if(this.positionY < (collision.getPositionY()+collision.getWidth()*2) &&
+                                if(this.positionY < (collision.getPositionY()+collision.getHeight()) &&
                                         this.positionX>=collision.getPositionX() &&
-                                        (this.positionY+Constant.SMALL_ATTACK_HEIGHT) < collision.getPositionY() &&
+                                        (this.positionY+Constant.SMALL_ATTACK_HEIGHT) > collision.getPositionY() &&
                                         (this.positionX+Constant.SMALL_ATTACK_WIDTH)<=(collision.getPositionX()+collision.getWidth())){
                                     collision.damageShip(this.damage);
+                                    Log.d("yay", "run: ");
                                     done=true;
                                     break;
                                 }
                             } else {
-                                if(this.positionY<(collision.getPositionY()+collision.getWidth()*2) &&
+                                if(this.positionY<(collision.getPositionY()+collision.getHeight()) &&
                                         this.positionX>=collision.getPositionX() &&
-                                        (this.positionY+Constant.PLAYER_CHARGE_ATTACK_HEIGHT) < collision.getPositionY() &&
+                                        (this.positionY+Constant.PLAYER_CHARGE_ATTACK_HEIGHT) > collision.getPositionY() &&
                                         (this.positionX+Constant.PLAYER_CHARGE_ATTACK_WIDTH)<=(collision.getPositionX()+collision.getWidth())){
                                     collision.damageShip(this.damage);
                                     done=true;

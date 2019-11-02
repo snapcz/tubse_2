@@ -77,7 +77,7 @@ public class GameStatus {
         }
     }
 
-    public void startAttacks(){8
+    public void startAttacks(){
         for (int i = 0; i < attacks.size(); i++) {
             if(!attacks.get(i).isAlive())attacks.get(i).start();
         }

@@ -151,7 +151,6 @@ public class DrawerThread extends Thread {
                     synchronized (gameHolder) {
                         gameCanvas.drawBitmap(this.playerBitmap, player.getPositionX(), player.getPositionY(), null);
                         gameCanvas.drawBitmap(this.enemyBitmap, enemy.getPositionX(), enemy.getPositionY(), null);
-                            //gameCanvas.drawCircle((enemy.getPositionX() + enemy.getWidth() / 2),(enemy.getPositionY() + enemy.getHeight() + Constant.SMALL_ATTACK_HEIGHT),10,p);
                         Iterator<Attack> it = status.getAttacks().iterator();
                         while (it.hasNext()) {
                             Attack atk = it.next();
@@ -159,9 +158,6 @@ public class DrawerThread extends Thread {
                                 if (atk.getIdBullet() == 0) { // smallAttack
                                     gameCanvas.drawBitmap(this.smallAttackBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                 } else { // charge
-                                    Paint p = new Paint();
-                                    p.setColor(res.getColor(R.color.red));
-                                    gameCanvas.drawCircle(atk.getPositionX(),atk.getPositionY()+ Constant.ENEMY_CHARGE_ATTACK_HEIGHT,10,p);
                                     if (atk.getSource() == player) {
                                        gameCanvas.drawBitmap(this.playerChargeBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                     } else {
@@ -183,6 +179,7 @@ public class DrawerThread extends Thread {
                 this.previousTime = currentTimeMillis;
             }
         }
+
     }
 
     public void drawPause() {
