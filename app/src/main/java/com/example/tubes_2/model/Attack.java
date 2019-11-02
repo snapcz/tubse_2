@@ -86,6 +86,7 @@ public class Attack extends Thread {
                         //YO DEBUG YO
                         if(!this.done && this.source.getId()==0){
                             Ship collision = this.status.getEnemy();
+
                             if(this.getIdBullet()==0){ //bug disini
                                 if(this.positionY < (collision.getPositionY()+collision.getWidth()*2) &&
                                         this.positionX>=collision.getPositionX() &&
@@ -118,7 +119,7 @@ public class Attack extends Thread {
                                     break;
                                 }
                             } else {
-                                if((this.positionY+ Constant.ENEMY_CHARGE_ATTACK_HEIGHT)>collision.getPositionY() &&
+                                if ((this.positionY+ Constant.ENEMY_CHARGE_ATTACK_HEIGHT)>collision.getPositionY() &&
                                         this.positionY <= (collision.getPositionY()+collision.getHeight())){
                                     if(this.positionX<collision.getPositionX()){
                                         if(this.positionX+Constant.ENEMY_CHARGE_ATTACK_WIDTH>collision.getPositionX()){
