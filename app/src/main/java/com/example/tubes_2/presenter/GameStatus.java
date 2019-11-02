@@ -2,7 +2,6 @@ package com.example.tubes_2.presenter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import com.example.tubes_2.R;
 import com.example.tubes_2.model.Attack;
@@ -10,12 +9,9 @@ import com.example.tubes_2.model.Constant;
 import com.example.tubes_2.model.Difficulty;
 import com.example.tubes_2.model.Ship;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameStatus {
     Context ctx;
@@ -119,10 +115,18 @@ public class GameStatus {
         // update enemy position
         Random rd = new Random();
         int move = rd.nextInt(this.getDifficulty().getEnemyMoveLimit() * 2) - this.getDifficulty().getEnemyMoveLimit();
-        System.out.println(move);
-        if((this.enemy.getPositionX()+move)>0) this.enemy.setPosition(this.enemy.getPositionX() + move, this.enemy.getPositionY());
 
-        if(this.enemy.getCurrentHealth()<=0||this.player.getCurrentHealth()<=0) this.gameState=false;
+        this.enemy.setPosition(this.enemy.getPositionX() + move, this.enemy.getPositionY());
+
+        if (this.enemy.getPositionX() < 0) {
+            this.enemy.setPosition(0, this.enemy.getPositionY());
+        }
+
+        if (this.enemy.getPositionX() + this.enemy.getWidth() > this.wd) {
+            this.enemy.setPosition(this.wd - this.enemy.getWidth(), this.enemy.getPositionY());
+        }
+
+        if (this.enemy.getCurrentHealth() <= 0 || this.player.getCurrentHealth() <= 0) this.gameState=false;
         // check collision here, update status accordingly
     }
 

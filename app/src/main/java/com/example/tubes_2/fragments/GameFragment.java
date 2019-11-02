@@ -40,6 +40,8 @@ import io.github.controlwear.virtual.joystick.android.JoystickView;
 public class GameFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener, GameWrapper, JoystickView.OnMoveListener, SensorEventListener {
     FloatingActionButton shootButton, pauseButton;
 
+    LinearLayout gameWrapper;
+
     DrawerThread drawer;
     AttackThread attacker;
     TimerThread timer;
@@ -75,8 +77,9 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
         this.difficulty = this.getArguments().getParcelable("difficulty");
 
-        LinearLayout gameWrapper = view.findViewById(R.id.gameView);
+        this.gameWrapper = view.findViewById(R.id.gameView);
         this.gameView = new GameView(this.getContext(), this);
+
         gameWrapper.addView(this.gameView);
 
         this.playerView = view.findViewById(R.id.playerView);
@@ -128,7 +131,7 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        if (this.gameStatus!=null && this.gameStatus.getGameState() && this.gameStatus.getCountdown() == 0) {
+        if (this.gameStatus != null && this.gameStatus.getGameState() && this.gameStatus.getCountdown() == 0) {
             int sensorType = sensorEvent.sensor.getType();
 
             switch (sensorType) {
@@ -306,7 +309,16 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
     public void onPause() {
         super.onPause();
 
-        this.drawer.clearScreen();
+        this.gameWrapper.removeAllViews();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (this.gameView.getParent() == null) {
+            this.gameWrapper.addView(this.gameView);
+        }
     }
 
     @Override
@@ -326,5 +338,10 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         }
 
         this.activity.updateScore(lifeScore);
+    }
+
+    @Override
+    public void gameOver() {
+        // u loser, show a toast to humiliate him
     }
 }
