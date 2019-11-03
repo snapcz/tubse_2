@@ -179,7 +179,12 @@ public class DrawerThread extends Thread {
                 this.previousTime = currentTimeMillis;
             }
         }
-        this.wrapper.calculateScore();
+
+        if (this.status.getEnemy().getCurrentHealth() <= 0) {
+            this.wrapper.calculateScore();
+        } else {
+            this.wrapper.gameOver();
+        }
     }
 
     public void drawPause() {

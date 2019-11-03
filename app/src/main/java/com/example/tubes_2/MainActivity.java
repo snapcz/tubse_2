@@ -6,9 +6,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.tubes_2.fragments.GameFragment;
 import com.example.tubes_2.fragments.HighScoreFragment;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
         this.fragmentManager = this.getSupportFragmentManager();
         this.fragmentList = new ArrayList<>();
         this.fragmentList.add(MenuFragment.newInstance(this));
-        this.fragmentList.add(GameFragment.newInstance(Difficulty.createDifficulty(0),this));
+        this.fragmentList.add(GameFragment.newInstance(Difficulty.createDifficulty(0),0));
         this.changePage(MENU);
     }
 
@@ -70,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
 
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         if(this.fragmentManager.getBackStackEntryCount()<2){
             AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
             alertDialog.setTitle("Are you sure to quit?");
@@ -101,5 +103,33 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
         MenuFragment fragment = (MenuFragment)this.fragmentList.get(0);
 
         fragment.updateScore(score);
+    }
+
+    @Override
+    public void showLoser() {
+        this.changePage(MENU);
+
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                builder.setTitle("You Loser!");
+
+                builder.setMessage("You lose lol, sucks to be you!");
+
+                builder.setPositiveButton(R.string.cries, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+
+                dialog.setCancelable(false);
+
+                dialog.show();
+            }
+        });
     }
 }

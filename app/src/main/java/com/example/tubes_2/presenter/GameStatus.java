@@ -21,7 +21,7 @@ public class GameStatus {
      * true bila game sudah start (walaupun dipause, dia bakal tetep true, useful for pausing!)
      * false bila game belum start atau sudah selesai
      */
-    boolean gameState;
+    boolean gameState, kiri;
 
     int countdown, wd, ht;
 
@@ -38,12 +38,15 @@ public class GameStatus {
         this.ht = ht;
 
         this.attacks = new ArrayList<>();
+
+        this.kiri = true;
     }
 
     public void initializeGame() {
         this.countdown = 3;
 
         this.gameState = true;
+        this.kiri = true;
 
         Drawable playerShip = this.ctx.getResources().getDrawable(R.drawable.player_ship);
         int playerWidth = playerShip.getIntrinsicWidth();
@@ -113,17 +116,21 @@ public class GameStatus {
 
     public void updateGame() {
         // update enemy position
-        Random rd = new Random();
-        int move = rd.nextInt(this.getDifficulty().getEnemyMoveLimit() * 2) - this.getDifficulty().getEnemyMoveLimit();
 
-        this.enemy.setPosition(this.enemy.getPositionX() + move, this.enemy.getPositionY());
+        if (this.kiri) {
+            this.enemy.setPosition(this.enemy.getPositionX() - this.difficulty.getEnemyMoveLimit(), this.enemy.getPositionY());
+        } else {
+            this.enemy.setPosition(this.enemy.getPositionX() + this.difficulty.getEnemyMoveLimit(), this.enemy.getPositionY());
+        }
 
         if (this.enemy.getPositionX() < 0) {
             this.enemy.setPosition(0, this.enemy.getPositionY());
+            this.kiri = false;
         }
 
         if (this.enemy.getPositionX() + this.enemy.getWidth() > this.wd) {
             this.enemy.setPosition(this.wd - this.enemy.getWidth(), this.enemy.getPositionY());
+            this.kiri = true;
         }
 
         if (this.enemy.getCurrentHealth() <= 0 || this.player.getCurrentHealth() <= 0) this.gameState=false;
@@ -174,6 +181,7 @@ public class GameStatus {
                     chargeAttackPositionX, player.getPositionY(), Constant.CHARGE_ATTACK_SPEED_X, -Constant.CHARGE_ATTACK_SPEED_Y, this.difficulty.getPlayerChargeAttackDamage(),this);
             this.attacks.add(atk);
         }
+
         atk.start();
     }
 
@@ -192,6 +200,7 @@ public class GameStatus {
             atk =Attack.createAttack(enemy, id, chargeAttackPositionX, chargeAttackPositionY, Constant.CHARGE_ATTACK_SPEED_X, Constant.CHARGE_ATTACK_SPEED_Y, this.difficulty.getEnemyChargeAttackDamage(),this);
             this.attacks.add(atk);
         }
+
         atk.start();
     }
 }

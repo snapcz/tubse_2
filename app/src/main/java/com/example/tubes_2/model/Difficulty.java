@@ -126,15 +126,23 @@ public class Difficulty implements Parcelable {
 
     public static Difficulty createDifficulty(int id) {
         int charge = 0;
-        int playerLife = 75;
-        int enemyLife = 300;
+        int playerLife = 50;
+        int enemyLife = 500;
+        double chanceSmallAttack = 0.4;
+        int enemyAttackTime = 850;
+        int enemyChargeAttackDamage = 50;
+        int playerChargeAttackDamage = 15;
 
         if (id == 0) { // normal difficulty
             charge = 1;
             playerLife = 100;
-            enemyLife = 175;
+            enemyLife = 350;
+            chanceSmallAttack = 0.6;
+            enemyAttackTime = 1000;
+            enemyChargeAttackDamage = 30;
+            playerChargeAttackDamage = 20;
         }
 
-        return new Difficulty(charge, playerLife, enemyLife, 0.8, 2000, 10, 30, 25, 5);
+        return new Difficulty(charge, playerLife, enemyLife, chanceSmallAttack, enemyAttackTime, 10, playerChargeAttackDamage, enemyChargeAttackDamage, 5);
     }
 }

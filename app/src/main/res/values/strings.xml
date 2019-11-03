@@ -9,4 +9,6 @@
     <string name="control_label">Control Mode</string>
     <string name="joystick_label">Joystick</string>
     <string name="sensor_label">Sensor</string>
+
+    <string name="cries">Cries in the corner</string>
 </resources>

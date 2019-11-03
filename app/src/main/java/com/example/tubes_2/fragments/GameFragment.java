@@ -14,6 +14,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,7 +87,6 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         this.playerView = view.findViewById(R.id.playerView);
         this.enemyView = view.findViewById(R.id.enemyView);
 
-        this.joystickView = view.findViewById(R.id.joystick);
 
         this.shootButton = view.findViewById(R.id.shoot);
         this.pauseButton = view.findViewById(R.id.pause);
@@ -99,14 +99,19 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
         this.pauseButton.setOnClickListener(this);
 
-        this.joystickView.setOnMoveListener(this);
+        if (this.getArguments().getInt("controller") == 1) {
+            this.sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+            this.accelerometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            this.magnetometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        this.sensorManager = (SensorManager)getActivity().getSystemService(Context.SENSOR_SERVICE);
-        this.accelerometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        this.magnetometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+            this.magnetometerReading = new float[3];
+            this.accelerometerReading = new float[3];
 
-        this.magnetometerReading = new float[3];
-        this.accelerometerReading = new float[3];
+            this.joystickView.setVisibility(View.GONE);
+        } else {
+            this.joystickView = view.findViewById(R.id.joystick);
+            this.joystickView.setOnMoveListener(this);
+        }
 
         return view;
     }
@@ -219,11 +224,12 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
         }
     }
 
-    public static GameFragment newInstance(Difficulty difficulty, UIActivity activity) {
+    public static GameFragment newInstance(Difficulty difficulty, int controller) {
         GameFragment fragment = new GameFragment();
 
         Bundle args = new Bundle();
         args.putParcelable("difficulty", difficulty);
+        args.putInt("controller", controller);
         fragment.setArguments(args);
 
         return fragment;
@@ -329,7 +335,10 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
     @Override
     public void calculateScore() {
+        FragmentManager fm = this.getFragmentManager();
+
         int lifeScore = this.gameStatus.getPlayer().getCurrentHealth() * 5000;
+        int initScore = lifeScore;
         int time = this.timer.getTime();
 
         lifeScore -= time;
@@ -338,19 +347,18 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
             lifeScore >>= 1;
         }
 
-        this.activity.updateScore(lifeScore);
-        this.gameOver();
+        ScoringFragment fragment = ScoringFragment.newInstance(
+                Integer.toString(initScore),
+                "-" + time,
+                (this.difficulty.getChargeEnabled() == 1 ? "1" : "2"),
+                Integer.toString(lifeScore));
+
+        fragment.show(fm, "");
     }
 
     @Override
     public void gameOver() {
         // u loser, show a toast to humiliate him
-        Toast status;
-        if(this.gameStatus.getPlayer().getCurrentHealth()<=0){
-            status = Toast.makeText(getContext(),"You are a loser indeed, since born",Toast.LENGTH_LONG);
-        } else {
-            status = Toast.makeText(getContext(),"Lucky bastard...",Toast.LENGTH_SHORT);
-        }
-        status.show();
+        this.activity.showLoser();
     }
 }

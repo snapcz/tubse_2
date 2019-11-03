@@ -11,6 +11,7 @@ package com.example.tubes_2.fragments;
         import androidx.fragment.app.Fragment;
         import androidx.fragment.app.FragmentManager;
 
+        import com.android.volley.NetworkResponse;
         import com.android.volley.Request;
         import com.android.volley.RequestQueue;
         import com.android.volley.Response;
@@ -66,7 +67,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if(view.getId()==this.startGame.getId()){
+        if(view.getId() == this.startGame.getId()){
             this.activity.changePage(START_GAME);
         } else if (view.getId() == this.highScore.getId()){
             this.showHighScoreFragment();
@@ -119,7 +120,14 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                         // DO NOTHING
                     }
                 }
-        );
+
+        ) {
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                int mStatusCode = response.statusCode;
+                return super.parseNetworkResponse(response);
+            }
+        };
 
         queue.add(jsonObjectRequest);
     }
@@ -152,10 +160,20 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // DO NOTHING
+                        System.out.println("fucked up API");
                     }
                 }
-        );
+        ){
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                int mStatusCode = response.statusCode;
+
+                if (mStatusCode != 200) {
+                    System.out.println("Error gan " + mStatusCode);
+                }
+                return super.parseNetworkResponse(response);
+            }
+        };
 
         queue.add(request);
 
@@ -234,7 +252,13 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                         // DO NOTHING
                     }
                 }
-        );
+        ){
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                int mStatusCode = response.statusCode;
+                return super.parseNetworkResponse(response);
+            }
+        };
 
         queue.add(jsonObjectRequest);
     }
