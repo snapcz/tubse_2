@@ -168,7 +168,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
 
         queue.add(request);
 
-        for (int i = idx; i <= 20; i++) {
+        for (int i = idx; i < 20; i++) {
             final int orig = i;
             final int order = i + 1;
 
