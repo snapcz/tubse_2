@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.example.tubes_2.fragments.GameFragment;
 import com.example.tubes_2.fragments.HighScoreFragment;
 import com.example.tubes_2.fragments.MenuFragment;
+import com.example.tubes_2.fragments.SettingsFragment;
 import com.example.tubes_2.interfaces.UIActivity;
 import com.example.tubes_2.model.Difficulty;
 
@@ -23,10 +24,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements UIActivity {
     FragmentManager fragmentManager;
-    List<Fragment> fragmentList;
+    Fragment[] fragmentList;
     final int MENU = 0;
-    final int START_GAME = 1;
-    final int HIGH_SCORE = 2;
+    final int INIT_GAME = 1;
+    final int START_GAME = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +35,9 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
         setContentView(R.layout.activity_main);
 
         this.fragmentManager = this.getSupportFragmentManager();
-        this.fragmentList = new ArrayList<>();
-        this.fragmentList.add(MenuFragment.newInstance(this));
-        this.fragmentList.add(GameFragment.newInstance(Difficulty.createDifficulty(0),0));
+        this.fragmentList = new Fragment[3];
+        this.fragmentList[0] = MenuFragment.newInstance(this);
+        this.fragmentList[1] = (SettingsFragment.newInstance());
         this.changePage(MENU);
     }
 
@@ -48,23 +49,23 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
             case START_GAME:
                 chosenPage = START_GAME;
                 break;
-            case HIGH_SCORE:
-                chosenPage = HIGH_SCORE;
-                break;
             case MENU:
                 chosenPage = MENU;
+                break;
+            case INIT_GAME:
+                chosenPage = INIT_GAME;
                 break;
              default:
                 break;
         }
-        if(this.fragmentList.get(chosenPage).isAdded()) ft.show(this.fragmentList.get(chosenPage));
+        if(this.fragmentList[chosenPage].isAdded()) ft.show(this.fragmentList[chosenPage]);
         else{
-            ft.add(R.id.fragment_container,this.fragmentList.get(chosenPage)).addToBackStack("");
-            ft.show(this.fragmentList.get(chosenPage));
+            ft.add(R.id.fragment_container,this.fragmentList[chosenPage]).addToBackStack("");
+            ft.show(this.fragmentList[chosenPage]);
         }
-        for (int i = 0; i < this.fragmentList.size(); i++) {
-            if(i!=chosenPage){
-                if(this.fragmentList.get(i).isAdded()) ft.hide(this.fragmentList.get(i));
+        for (int i = 0; i < this.fragmentList.length; i++) {
+            if(this.fragmentList[i]!=this.fragmentList[chosenPage]){
+                if(this.fragmentList[i]!=null&&this.fragmentList[i].isAdded()) ft.remove(this.fragmentList[i]);
             }
         }
         ft.commit();
@@ -73,26 +74,31 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
 
     @Override
     public void onBackPressed() {
-        if(this.fragmentManager.getBackStackEntryCount()<2){
-            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-            alertDialog.setTitle("Are you sure to quit?");
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "YES",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            finish();
-                        }
-                    });
-            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
+        if(this.fragmentList[START_GAME]!=null && this.fragmentList[START_GAME].isVisible()){
+            this.changePage(0);
         }
         else{
-            super.onBackPressed();
+            if(this.fragmentList[MENU].isVisible()){
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                alertDialog.setTitle("Are you sure to quit?");
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "YES",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                finish();
+                            }
+                        });
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            }
+            else{
+                super.onBackPressed();
+            }
         }
     }
 
@@ -100,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
     public void updateScore(int score) {
         this.changePage(MENU);
 
-        MenuFragment fragment = (MenuFragment)this.fragmentList.get(0);
+        MenuFragment fragment = (MenuFragment)this.fragmentList[0];
 
         fragment.updateScore(score);
     }
@@ -131,5 +137,11 @@ public class MainActivity extends AppCompatActivity implements UIActivity {
                 dialog.show();
             }
         });
+    }
+
+    @Override
+    public void startGame(int difficulty, int controller) {
+        this.fragmentList[START_GAME] = (GameFragment.newInstance(Difficulty.createDifficulty(difficulty),controller));
+        this.changePage(START_GAME);
     }
 }

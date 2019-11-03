@@ -2,6 +2,7 @@ package com.example.tubes_2.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class Difficulty implements Parcelable {
     // Apakah player bisa charge attack?
@@ -125,6 +126,7 @@ public class Difficulty implements Parcelable {
     };
 
     public static Difficulty createDifficulty(int id) {
+        Log.d("createDifficulty ",id+"");
         int charge = 0;
         int playerLife = 50;
         int enemyLife = 500;

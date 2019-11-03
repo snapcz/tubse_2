@@ -34,8 +34,7 @@ package com.example.tubes_2.fragments;
 
 public class MenuFragment extends Fragment implements View.OnClickListener {
     Button startGame,highScore;
-    final int START_GAME = 1;
-    final int HIGH_SCORE = 2;
+    final int INIT_GAME = 1;
     UIActivity activity;
 
     private static final String BASE_URL = "http://p3b.labftis.net/api.php";
@@ -68,7 +67,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if(view.getId() == this.startGame.getId()){
-            this.activity.changePage(START_GAME);
+            this.activity.changePage(INIT_GAME);
         } else if (view.getId() == this.highScore.getId()){
             this.showHighScoreFragment();
         }

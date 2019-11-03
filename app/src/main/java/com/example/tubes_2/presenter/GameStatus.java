@@ -102,6 +102,8 @@ public class GameStatus {
         return countdown;
     }
 
+    public int getHeight(){return this.ht;}
+
     public Difficulty getDifficulty() {
         return difficulty;
     }
@@ -156,9 +158,13 @@ public class GameStatus {
          * I'll tell you later why the calculation looks like this
          */
         if(!((this.player.getPositionX()+posX)<0) &&
-                !((this.player.getPositionX()+posX)>this.wd) &&
+                !((this.player.getPositionX()+this.player.getWidth()+posX)>this.wd) &&
+                !((this.player.getPositionY()+this.player.getHeight())>this.ht)&&
                 !((this.player.getPositionY()+posY)<0)){
             this.player.setPosition(this.player.getPositionX() + posX, this.player.getPositionY() - posY);
+        }
+        else{
+            this.player.setPosition(this.player.getPositionX(), this.player.getPositionY()-5);
         }
     }
 

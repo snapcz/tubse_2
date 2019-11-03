@@ -87,13 +87,17 @@ public class Attack extends Thread {
                         if(!this.done && this.source.getId()==0){
                             Ship collision = this.status.getEnemy();
 
-                            if(this.getIdBullet()==0){ //bug disini
+                            if(this.positionY>this.status.getHeight()){
+                                done=true;
+                                break;
+                            }
+
+                            if(this.getIdBullet()==0){
                                 if(this.positionY < (collision.getPositionY()+collision.getHeight()) &&
                                         this.positionX>=collision.getPositionX() &&
                                         (this.positionY+Constant.SMALL_ATTACK_HEIGHT) > collision.getPositionY() &&
                                         (this.positionX+Constant.SMALL_ATTACK_WIDTH)<=(collision.getPositionX()+collision.getWidth())){
                                     collision.damageShip(this.damage);
-                                    Log.d("yay", "run: ");
                                     done=true;
                                     break;
                                 }
@@ -108,9 +112,13 @@ public class Attack extends Thread {
                                 }
                             }
                         }
-                        else if(!this.done){
+                        else if(!this.done && this.source.getId()==1){
                             Ship collision = this.status.getPlayer();
-                            if(this.getIdBullet()==0){ //Cek lagi
+                            if(this.positionY>this.status.getHeight()){
+                                done=true;
+                                break;
+                            }
+                            if(this.getIdBullet()==0){
                                 if((this.positionY+ Constant.SMALL_ATTACK_HEIGHT)>collision.getPositionY() &&
                                         this.positionX>=collision.getPositionX() &&
                                         this.positionX<=(collision.getPositionX()+collision.getWidth()) &&

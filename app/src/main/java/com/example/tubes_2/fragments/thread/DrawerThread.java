@@ -161,7 +161,7 @@ public class DrawerThread extends Thread {
                                     if (atk.getSource() == player) {
                                        gameCanvas.drawBitmap(this.playerChargeBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                     } else {
-                                       gameCanvas.drawBitmap(this.enemyChargaBitmap, atk.getPositionX(), atk.getPositionY(), null);
+                                        gameCanvas.drawBitmap(this.enemyChargaBitmap, atk.getPositionX(), atk.getPositionY(), null);
                                     }
                                 }
                             }
@@ -182,7 +182,7 @@ public class DrawerThread extends Thread {
 
         if (this.status.getEnemy().getCurrentHealth() <= 0) {
             this.wrapper.calculateScore();
-        } else {
+        } else if(this.status.getPlayer().getCurrentHealth() <= 0){
             this.wrapper.gameOver();
         }
     }

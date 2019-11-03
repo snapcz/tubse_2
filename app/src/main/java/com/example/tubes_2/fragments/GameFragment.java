@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -132,7 +134,11 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
     @Override
     public void onStop() {
         super.onStop();
-        this.sensorManager.unregisterListener(this);
+        try{
+            this.sensorManager.unregisterListener(this);
+        } catch(Exception e){
+
+        }
     }
 
     @Override
@@ -246,6 +252,7 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
                 this.pauseButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
                 this.drawer.drawPause();
                 this.gameStatus.endGame();
+                Log.d("pause", "onClick: ");
             } else {
                 this.pauseButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_pause_black_24dp));
                 this.gameStatus.resumeGame();

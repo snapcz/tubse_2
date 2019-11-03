@@ -7,10 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.example.tubes_2.R;
@@ -24,6 +26,7 @@ public class SettingsFragment extends DialogFragment implements View.OnClickList
     Button play;
 
     UIActivity activity;
+    static int START_GAME=1;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -61,8 +64,20 @@ public class SettingsFragment extends DialogFragment implements View.OnClickList
         int chosenController = -1;
 
         if (id == this.play.getId()) {
-            chosenDifficulty = this.difficulty.getCheckedRadioButtonId();
-            chosenController = this.controller.getCheckedRadioButtonId();
+            if(view.findViewById(this.difficulty.getCheckedRadioButtonId()) == view.findViewById(R.id.normal_difficulty)){
+                chosenDifficulty = 0;
+            }
+            else{
+                chosenDifficulty = 1;
+            }
+            if(view.findViewById(this.controller.getCheckedRadioButtonId()) == view.findViewById(R.id.joystick)){
+                chosenController = 0;
+            } else chosenController = 1;
+            this.activity.startGame(chosenDifficulty,chosenController);
         }
+    }
+
+    public static SettingsFragment newInstance(){
+        return new SettingsFragment();
     }
 }
