@@ -1,5 +1,6 @@
 package com.example.tubes_2.fragments;
 
+        import android.content.Context;
         import android.os.Bundle;
         import android.view.LayoutInflater;
         import android.view.View;
@@ -138,14 +139,12 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                 new Response.Listener<NetworkResponse>() {
                     @Override
                     public void onResponse(NetworkResponse response) {
-                        /*
                         Context context = getContext();
                         String text = "Successfully update high score at index " + idx + " with score " + score;
                         int duration = Toast.LENGTH_SHORT;
 
                         Toast toast = Toast.makeText(context, text, duration);
                         toast.show();
-                        */
                     }
                 },
                 new Response.ErrorListener() {
@@ -169,7 +168,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
 
         queue.add(request);
 
-        for (int i = idx; i < 20; i++) {
+        for (int i = idx; i <= 20; i++) {
             final int orig = i;
             final int order = i + 1;
 
