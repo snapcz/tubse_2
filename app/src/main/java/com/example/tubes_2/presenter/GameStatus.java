@@ -82,7 +82,8 @@ public class GameStatus {
 
     public void startAttacks(){
         for (int i = 0; i < attacks.size(); i++) {
-            if(!attacks.get(i).isAlive())attacks.get(i).start();
+            if(!attacks.get(i).isAlive())
+                attacks.get(i).start();
         }
     }
 
@@ -194,7 +195,7 @@ public class GameStatus {
 
         Attack atk;
         if (id == 0) {
-            atk =Attack.createAttack(enemy, id, smallAttackPositionX, smallAttackPositionY, Constant.SMALL_ATTACK_SPEED_X, Constant.SMALL_ATTACK_SPEED_Y, this.difficulty.getSmallAttackDamage(),this);
+            atk = Attack.createAttack(enemy, id, smallAttackPositionX, smallAttackPositionY, Constant.SMALL_ATTACK_SPEED_X, Constant.SMALL_ATTACK_SPEED_Y, this.difficulty.getSmallAttackDamage(),this);
             this.attacks.add(atk);
         } else {
             atk =Attack.createAttack(enemy, id, chargeAttackPositionX, chargeAttackPositionY, Constant.CHARGE_ATTACK_SPEED_X, Constant.CHARGE_ATTACK_SPEED_Y, this.difficulty.getEnemyChargeAttackDamage(),this);
