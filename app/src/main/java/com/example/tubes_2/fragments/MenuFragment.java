@@ -11,26 +11,31 @@ package com.example.tubes_2.fragments;
         import androidx.fragment.app.Fragment;
         import androidx.fragment.app.FragmentManager;
 
+        import com.android.volley.AuthFailureError;
         import com.android.volley.NetworkResponse;
         import com.android.volley.Request;
         import com.android.volley.RequestQueue;
         import com.android.volley.Response;
         import com.android.volley.VolleyError;
+        import com.android.volley.toolbox.HttpHeaderParser;
         import com.android.volley.toolbox.JsonObjectRequest;
         import com.android.volley.toolbox.Volley;
         import com.example.tubes_2.R;
         import com.example.tubes_2.interfaces.UIActivity;
-        import com.example.tubes_2.model.RequestObject;
         import com.example.tubes_2.model.Score;
+        import com.example.tubes_2.util.MultipartRequest;
         import com.google.gson.Gson;
 
         import org.json.JSONArray;
         import org.json.JSONException;
         import org.json.JSONObject;
 
+        import java.io.UnsupportedEncodingException;
         import java.util.ArrayList;
-        import java.util.Collections;
+        import java.util.Arrays;
+        import java.util.HashMap;
         import java.util.List;
+        import java.util.Map;
 
 public class MenuFragment extends Fragment implements View.OnClickListener {
     Button startGame,highScore;
@@ -99,13 +104,12 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
 
                                     scoreList.add(scorex);
                                 }
-
-                                Collections.sort(scoreList);
                             }
 
                             for (int i = 0; i < 20; i++) {
                                 if (scoreList.get(i).getScore() < score) {
-                                    sendUpdateScoreRequest(i + 1, score, scoreList);
+                                    sendUpdateScoreRequest(scoreList.get(i).getOrder(), score, scoreList);
+                                    break;
                                 }
                             }
                         } catch (Exception e) {
@@ -120,34 +124,20 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                     }
                 }
 
-        ) {
-            @Override
-            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-                int mStatusCode = response.statusCode;
-                return super.parseNetworkResponse(response);
-            }
-        };
+        );
 
         queue.add(jsonObjectRequest);
     }
 
-    public void sendUpdateScoreRequest(final int idx, final int score, List<Score> prevScores) throws JSONException {
+    public void sendUpdateScoreRequest(final int idx, final int score, final List<Score> prevScores) {
         RequestQueue queue = Volley.newRequestQueue(this.getContext());
-        Gson gson = new Gson();
 
-        RequestObject req = new RequestObject("2017730017", idx, score);
-
-        String jsonString = gson.toJson(req);
-
-        JSONObject obj = new JSONObject(jsonString);
-
-        JsonObjectRequest request = new JsonObjectRequest(
+        MultipartRequest request = new MultipartRequest(
                 Request.Method.POST,
                 BASE_URL,
-                obj,
-                new Response.Listener<JSONObject>() {
+                new Response.Listener<NetworkResponse>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(NetworkResponse response) {
                         Context context = getContext();
                         String text = "Successfully update high score at index " + idx + " with score " + score;
                         int duration = Toast.LENGTH_SHORT;
@@ -159,38 +149,34 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        System.out.println("fucked up API");
+                        System.out.println(error.getMessage());
                     }
                 }
         ){
-            @Override
-            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-                int mStatusCode = response.statusCode;
 
-                if (mStatusCode != 200) {
-                    System.out.println("Error gan " + mStatusCode);
-                }
-                return super.parseNetworkResponse(response);
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> params = new HashMap<>();
+                params.put("api_key", "2017730017");
+                params.put("order", Integer.toString(idx));
+                params.put("value", Integer.toString(score));
+
+                return params;
             }
         };
 
         queue.add(request);
 
         for (int i = idx; i < 20; i++) {
-            RequestObject requestObject = new RequestObject("2017730017", prevScores.get(i).getOrder() + 1, prevScores.get(i).getScore());
+            final int orig = i;
+            final int order = i + 1;
 
-            String jsonStrong = gson.toJson(requestObject);
-
-            JSONObject jsonObject = new JSONObject(jsonStrong);
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+            MultipartRequest jsonObjectRequest = new MultipartRequest(
                     Request.Method.POST,
                     BASE_URL,
-                    jsonObject,
-                    new Response.Listener<JSONObject>() {
+                    new Response.Listener<NetworkResponse>() {
                         @Override
-                        public void onResponse(JSONObject response) {
-
+                        public void onResponse(NetworkResponse response) {
                         }
                     },
                     new Response.ErrorListener() {
@@ -199,10 +185,21 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                             // DO NOTHING
                         }
                     }
-            );
+            ) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    HashMap<String, String> paramex = new HashMap<>();
+                    paramex.put("api_key", "2017730017");
+                    paramex.put("order", Integer.toString(order));
+                    paramex.put("value", Integer.toString(prevScores.get(orig - 1).getScore()));
+
+                    return paramex;
+                }
+            };
 
             queue.add(jsonObjectRequest);
         }
+
     }
 
     public void showHighScoreFragment() {
@@ -234,8 +231,6 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                                 }
                             }
 
-                            Collections.sort(scoreList);
-
                             FragmentManager fm = getFragmentManager();
                             HighScoreFragment fragment = new HighScoreFragment(scoreList);
 
@@ -251,13 +246,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                         // DO NOTHING
                     }
                 }
-        ){
-            @Override
-            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-                int mStatusCode = response.statusCode;
-                return super.parseNetworkResponse(response);
-            }
-        };
+        );
 
         queue.add(jsonObjectRequest);
     }

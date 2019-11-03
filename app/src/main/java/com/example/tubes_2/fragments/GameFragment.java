@@ -134,10 +134,8 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
     @Override
     public void onStop() {
         super.onStop();
-        try{
+        if (this.sensorManager != null) {
             this.sensorManager.unregisterListener(this);
-        } catch(Exception e){
-
         }
     }
 
@@ -346,7 +344,7 @@ public class GameFragment extends Fragment implements View.OnClickListener, View
 
         int lifeScore = this.gameStatus.getPlayer().getCurrentHealth() * 5000;
         int initScore = lifeScore;
-        int time = this.timer.getTime();
+        int time = this.timer.getTime() * 500;
 
         lifeScore -= time;
 

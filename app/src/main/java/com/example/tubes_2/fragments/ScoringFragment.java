@@ -35,7 +35,7 @@ public class ScoringFragment extends DialogFragment implements View.OnClickListe
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_scoring, container, false);
 
-        this.score = view.findViewById(R.id.total_score);
+        this.score = view.findViewById(R.id.player_score);
         this.penalty = view.findViewById(R.id.time_penalty);
         this.mult = view.findViewById(R.id.muiltiplier);
         this.total = view.findViewById(R.id.total_score);
